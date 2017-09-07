@@ -63,6 +63,8 @@ class Spider:
 						result = bucket.put_object(filename, img)
 						if result.status == 200:
 							count += 1
+							if count >= number:
+								break
 						else:
 							print "Cannot save " + filename + " to Aliyun OSS"
 					else:
