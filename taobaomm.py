@@ -5,7 +5,23 @@ import re
 import oss2
 import requests
 import sys
+import pika
 
+class amqp:
+	def __init__(self, url=None):
+		if url == None:
+			self.__url = 'amqp://ptdmvfkd:tE5EEv5hSbYJeFcEQpIKT7WMuuZueGN0@black-boar.rmq.cloudamqp.com/ptdmvfkd'
+		self.__queue = 'image'
+			
+	def pushm(self, message):		
+		connection = pika.BlockingConnection(pika.URLParameters(self.__url))
+		channel = connection.channel()
+		channel.queue_declare(queue=self.__queue)
+		channel.basic_publish(exchange='',
+		                      routing_key=self.__queue,
+							  body=message)
+		connection.close()
+		
 class Oss2bucket:
 	def __init__(self):
 		self.AK = "/etc/ossAK"
@@ -63,6 +79,8 @@ class Spider:
 						result = bucket.put_object(filename, img)
 						if result.status == 200:
 							count += 1
+							if int(img.headers['Content-Length'])/1024/1024 > 1:
+								rbmq.pushm(filename)
 							if count >= number:
 								break
 						else:
