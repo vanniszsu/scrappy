@@ -59,18 +59,11 @@ class Spider:
 					channel = connection.channel()
 					channel.basic_publish(exchange='',
 										  routing_key=queue,
-										  
-					if img.status_code == 200:
-						result = bucket.put_object(filename, img)
-						if result.status == 200:
-							count += 1
-							if int(img.headers['Content-Length'])/1024/1024 > 1:
-								rbmq.pushm(filename)
-							if count >= number:
-								break
-						else:
-							print "Cannot save " + filename + " to Aliyun OSS"
-					else:
-						print "Cannot download the image " + filename
+										  body=message
+										  )
+					print "Put " + filename + " to the queue"
+					count += 1
+				if count >= number:
+					break
 			pageindex += 1
 			
